@@ -10,4 +10,8 @@
     <PackageReference Include="SharpFuzz" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Nethermind.Core\Nethermind.Core.csproj" />
+  </ItemGroup>
+
 </Project>
