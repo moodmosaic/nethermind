@@ -1,7 +1,21 @@
 using System;
 
+using Ethereum.Test.Base;
+
+using Nethermind.Blockchain;
 using Nethermind.Core;
+using Nethermind.Core.Crypto;
+using Nethermind.Core.Test.Db;
+using Nethermind.Db;
+using Nethermind.Evm;
+using Nethermind.Evm.Tracing;
+using Nethermind.Evm.TransactionProcessing;
 using Nethermind.Int256;
+using Nethermind.Logging;
+using Nethermind.Specs;
+using Nethermind.State;
+using Nethermind.Trie;
+using Nethermind.Trie.Pruning;
 
 namespace Ethereum.VM.Fuzzer;
 
@@ -14,52 +28,83 @@ public class Program
     {
         try
         {
-            // Create a simple transaction with the fuzzed bytecode.
+            // Create a transaction with the fuzzed bytecode for contract creation.
             var transaction = new Transaction
             {
-                Data = data.ToArray(),
-                Value = UInt256.Zero,
-                GasLimit = 1000000, // Large gas limit for fuzzing.
-                GasPrice = UInt256.One,
-                To = null, // Contract creation.
-                Nonce = 0
+                Data          = data.ToArray(),
+                Value         = UInt256.Zero,
+                GasLimit      = 1000000,
+                GasPrice      = UInt256.One,
+                To            = null,
+                Nonce         = 0,
+                SenderAddress = Address.Zero
             };
 
-            // Simple validation - just check if transaction is valid.
-            if (transaction.Data.Length > 0)
+            // Setup EVM execution environment.
+            MainnetSpecProvider specProvider = MainnetSpecProvider.Instance;
+            LimboLogs logManager = LimboLogs.Instance;
+
+            // Create simple in-memory world state.
+            IDbProvider memDbProvider = TestMemDbProvider.Init();
+            var trieStore = new TrieStore(
+                new NodeStorage(memDbProvider.StateDb),
+                No.Pruning,
+                Persist.EveryBlock,
+                new PruningConfig(),
+                logManager);
+            var worldState = new WorldState(
+                trieStore,
+                memDbProvider.CodeDb,
+                logManager);
+
+            // Create virtual machine.
+            var virtualMachine = new VirtualMachine(
+                new TestBlockhashProvider(),
+                specProvider,
+                logManager);
+
+            // Create code info repository.
+            var codeInfoRepository = new EthereumCodeInfoRepository(
+                worldState);
+
+            // Create transaction processor.
+            var transactionProcessor = new TransactionProcessor(
+                BlobBaseFeeCalculator.Instance,
+                specProvider,
+                worldState,
+                virtualMachine,
+                codeInfoRepository,
+                logManager);
+
+            // Create a simple block header
+            var blockHeader = new BlockHeader(
+                Keccak.Zero,
+                Keccak.Zero,
+                Address.Zero,
+                UInt256.Zero,
+                0,
+                1000000,
+                0,
+                []);
+
+            // Execute the transaction using NullTxTracer (simplest option).
+            TransactionResult result = transactionProcessor.Execute(
+                transaction,
+                blockHeader,
+                NullTxTracer.Instance);
+
+            // Check if execution was successful or failed gracefully.
+            // We expect some executions to fail - that's normal for random bytecode.
+            if (!result.TransactionExecuted)
             {
-                byte[] bytecode = transaction.Data.ToArray();
-
-                // Check for basic EVM instruction patterns.
-                for (int i = 0; i < bytecode.Length; i++)
-                {
-                    byte opcode = bytecode[i];
-
-                    // Check if it's a valid EVM opcode (0x00-0xFF).
-                    if (opcode > 0xFF)
-                    {
-                        throw new InvalidOperationException(
-                            $"Invalid opcode: {opcode:X2}");
-                    }
-
-                    // Check for PUSH instructions and validate their data.
-                    if (opcode >= 0x60 && opcode <= 0x7F) // PUSH1 to PUSH32.
-                    {
-                        int pushSize = opcode - 0x60 + 1;
-
-                        if (i + pushSize >= bytecode.Length)
-                        {
-                            throw new InvalidOperationException(
-                                $"PUSH instruction extends beyond bytecode");
-                        }
-
-                        // Skip the pushed data.
-                        i += pushSize;
-                    }
-                }
+                // This is expected for invalid bytecode - don't crash.
             }
         }
-        catch (Exception)
+        catch (EvmException)
+        {
+            // Expected for invalid bytecode - don't crash.
+        }
+        catch (Exception ex) when (ex is not EvmException)
         {
             // Unexpected exception - potential bug.
             throw;

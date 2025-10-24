@@ -4,6 +4,7 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
+    <StartupObject>Ethereum.VM.Fuzzer.Program</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>
@@ -11,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Nethermind.Core\Nethermind.Core.csproj" />
+    <ProjectReference Include="..\Ethereum.Test.Base\Ethereum.Test.Base.csproj" />
   </ItemGroup>
 
 </Project>
