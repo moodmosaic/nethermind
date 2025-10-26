@@ -7,6 +7,7 @@
     <Project Path="Nethermind.Consensus.AuRa/Nethermind.Consensus.AuRa.csproj" />
     <Project Path="Nethermind.Consensus.Ethash/Nethermind.Consensus.Ethash.csproj" />
     <Project Path="Nethermind.Consensus/Nethermind.Consensus.csproj" />
+    <Project Path="Nethermind.Core.PropertyTest/Nethermind.Core.PropertyTest.fsproj" />
     <Project Path="Nethermind.Core.Test/Nethermind.Core.Test.csproj" />
     <Project Path="Nethermind.Core/Nethermind.Core.csproj" />
     <Project Path="Nethermind.Crypto/Nethermind.Crypto.csproj" />
@@ -15,6 +16,7 @@
     <Project Path="Nethermind.Db/Nethermind.Db.csproj" />
     <Project Path="Nethermind.Era1/Nethermind.Era1.csproj" />
     <Project Path="Nethermind.Evm.Precompiles/Nethermind.Evm.Precompiles.csproj" />
+    <Project Path="Nethermind.Evm.PropertyTest/Nethermind.Evm.PropertyTest.fsproj" />
     <Project Path="Nethermind.Evm.Test/Nethermind.Evm.Test.csproj" />
     <Project Path="Nethermind.Evm/Nethermind.Evm.csproj" />
     <Project Path="Nethermind.Facade/Nethermind.Facade.csproj" />
