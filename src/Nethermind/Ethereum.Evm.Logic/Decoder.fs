@@ -6,7 +6,7 @@ open System
 /// It returns the produced value and the new offset into the byte array.
 type Decoder<'T> = byte[] -> int -> 'T * int
 
-module Structure =
+module Decoder =
 
   /// Consume a single byte. If input is exhausted, return a default (0).
   let u8 : Decoder<byte> =
@@ -14,7 +14,7 @@ module Structure =
       if offset < data.Length then
         (data[offset], offset + 1)
       else
-        (0uy, offset) // Always succeed, return default value
+        (0uy, offset) // Always succeed, return default value.
 
   /// Decode a bool (false for even byte, true for odd).
   let bool : Decoder<bool> =
@@ -55,12 +55,12 @@ module Structure =
       f v data next
 
   /// Decoder computation expression builder.
-  type StructureBuilder() =
+  type DecoderBuilder() =
     member _.Bind(d, f) = bind d f
     member _.Return(x) = fun _ offset -> (x, offset)
     member _.ReturnFrom(d) = d
 
-  let structure = StructureBuilder()
+  let decode = DecoderBuilder()
 
   /// Run a decoder from the start of a byte array.
   let run (decoder: Decoder<'T>) (data: byte[]) : 'T =

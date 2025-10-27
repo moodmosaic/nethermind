@@ -4,16 +4,17 @@ open System
 open Nethermind.Core
 open Nethermind.Int256
 open FuzzDecode
+open FuzzDecode.Decoder
 
 module Logic =
   let bananaDecoder () =
-    Structure.structure {
-      let! a = Structure.u8
-      let! b = Structure.u8
-      let! c = Structure.u8
-      let! d = Structure.u8
-      let! e = Structure.u8
-      let! f = Structure.u8
+    decode {
+      let! a = Decoder.u8
+      let! b = Decoder.u8
+      let! c = Decoder.u8
+      let! d = Decoder.u8
+      let! e = Decoder.u8
+      let! f = Decoder.u8
       return [| a; b; c; d; e; f |]
     }
 
