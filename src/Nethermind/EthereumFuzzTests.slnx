@@ -56,6 +56,7 @@
   <Project Path="Ethereum.Blockchain.Test/Ethereum.Blockchain.Test.csproj" />
   <Project Path="Ethereum.Difficulty.Test/Ethereum.Difficulty.Test.csproj" />
   <Project Path="Ethereum.Evm.Fuzzer/Ethereum.Evm.Fuzzer.fsproj" />
+  <Project Path="Ethereum.Evm.Logic/Ethereum.Evm.Logic.fsproj" />
   <Project Path="Ethereum.HexPrefix.Test/Ethereum.HexPrefix.Test.csproj" />
   <Project Path="Ethereum.KeyAddress.Test/Ethereum.KeyAddress.Test.csproj" />
   <Project Path="Ethereum.KeyStore.Test/Ethereum.KeyStore.Test.csproj" />
