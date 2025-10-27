@@ -80,14 +80,15 @@ module Logic =
 
           // 🍌 Hidden branch.
           // `run` now always returns a value, so we don't need to match on an Option.
-          let arr = Structure.run (bananaDecoder ()) (data.ToArray())
-          if arr[0] = byte 'b' &&
-             arr[1] = byte 'a' &&
-             arr[2] = byte 'n' &&
-             arr[3] = byte 'a' &&
-             arr[4] = byte 'n' &&
-             arr[5] = byte 'a' then
-              raise (InvalidOperationException "Found structured banana!")
+          if data.Length = 6 then
+              let arr = Decoder.run (bananaDecoder ()) (data.ToArray())
+              if arr[0] = byte 'b' &&
+                 arr[1] = byte 'a' &&
+                 arr[2] = byte 'n' &&
+                 arr[3] = byte 'a' &&
+                 arr[4] = byte 'n' &&
+                 arr[5] = byte 'a' then
+                   raise (InvalidOperationException "Found structured banana!")
 
       with
       | :? InvalidOperationException as ex ->
