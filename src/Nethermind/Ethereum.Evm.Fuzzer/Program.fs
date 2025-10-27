@@ -4,6 +4,18 @@ open System
 open SharpFuzz
 open Nethermind.Core
 open Nethermind.Int256
+open FuzzDecode
+
+let bananaDecoder () =
+  Structure.structure {
+    let! a = Structure.u8
+    let! b = Structure.u8
+    let! c = Structure.u8
+    let! d = Structure.u8
+    let! e = Structure.u8
+    let! f = Structure.u8
+    return [| a; b; c; d; e; f |]
+  }
 
 let harness (data: ReadOnlySpan<byte>) : unit =
     try
@@ -39,7 +51,47 @@ let harness (data: ReadOnlySpan<byte>) : unit =
                data[5] = byte 'a' then
                 raise (InvalidOperationException "Found banana!")
     with
-    | :? InvalidOperationException -> ()
+    | :? InvalidOperationException as ex ->
+        if ex.Message.Contains("banana") then raise ex
+
+let structure_harness (data: ReadOnlySpan<byte>) : unit =
+    try
+        let tx = Transaction()
+        tx.Data <- data.ToArray()
+        tx.Value <- UInt256.Zero
+        tx.GasLimit <- 1_000_000L
+        tx.GasPrice <- UInt256.One
+        tx.To <- null
+        tx.Nonce <- 0UL
+
+        let bytecode = tx.Data.Span
+        if bytecode.Length > 0 then
+            let mutable i = 0
+            while i < bytecode.Length do
+                let opcode = bytecode[i]
+                if opcode >= 0x60uy && opcode <= 0x7Fuy then
+                    let pushSize = int (opcode - 0x60uy + 1uy)
+                    if i + pushSize >= bytecode.Length then
+                        // Skip raising here — just break or ignore.
+                        i <- bytecode.Length
+                    else
+                        i <- i + pushSize
+                i <- i + 1
+
+        // 🍌 Hidden branch.
+        match Structure.run (bananaDecoder ()) (data.ToArray()) with
+        | Some arr when
+            arr[0] = byte 'b' &&
+            arr[1] = byte 'a' &&
+            arr[2] = byte 'n' &&
+            arr[3] = byte 'a' &&
+            arr[4] = byte 'n' &&
+            arr[5] = byte 'a' ->
+            raise (InvalidOperationException "Found structured banana!")
+        | _ -> ()
+    with
+    | :? InvalidOperationException as ex ->
+        if ex.Message.Contains("banana") then raise ex
 
 
 [<EntryPoint>]
