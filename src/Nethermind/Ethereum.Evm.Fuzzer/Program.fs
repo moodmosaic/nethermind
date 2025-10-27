@@ -27,4 +27,8 @@ let harness (data: ReadOnlySpan<byte>) : unit =
           i <- i + pushSize
         i <- i + 1
 
-Fuzzer.LibFuzzer.Run(fun data -> harness data)
+[<EntryPoint>]
+let main _ =
+    // SharpFuzz expects a real Main entrypoint here.
+    Fuzzer.LibFuzzer.Run(fun data -> harness data)
+    0
