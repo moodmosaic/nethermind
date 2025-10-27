@@ -13,4 +13,8 @@
     <PackageReference Include="SharpFuzz" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Ethereum.Test.Base\Ethereum.Test.Base.csproj" />
+  </ItemGroup>
+
 </Project>
