@@ -7,7 +7,9 @@ param (
     [string]$corpus,
     [string]$dict = $null,
     [int]$timeout = 10,
-    [string]$command = "sharpfuzz"
+    [string]$command = "sharpfuzz",
+    [Parameter(ValueFromRemainingArguments = $true)]
+    [string[]]$extraArgs
 )
 
 Set-StrictMode -Version Latest
@@ -51,8 +53,8 @@ foreach ($fuzzingTarget in $fuzzingTargets) {
 }
 
 if ($dict) {
-    & $libFuzzer -timeout="$timeout" -dict="$dict" --target_path=dotnet --target_arg=$project $corpus
+    & $libFuzzer -timeout="$timeout" -dict="$dict" --target_path=dotnet --target_arg=$project @extraArgs $corpus
 }
 else {
-    & $libFuzzer -timeout="$timeout" --target_path=dotnet --target_arg=$project $corpus
+    & $libFuzzer -timeout="$timeout" --target_path=dotnet --target_arg=$project @extraArgs $corpus
 }
